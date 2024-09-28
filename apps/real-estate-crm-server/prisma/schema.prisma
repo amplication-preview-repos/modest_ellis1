@@ -1,0 +1,73 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Property {
+  address     String?
+  agent       Agent?   @relation(name: "AgentOnProperties", fields: [agentId], references: [id])
+  agentId     String?  @db.ObjectId
+  agents      Agent[]  @relation(name: "AgentsOnProperty")
+  bathrooms   Int?
+  bedrooms    Int?
+  createdAt   DateTime @default(now())
+  description String?
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  price       Float?
+  size        Int?
+  updatedAt   DateTime @updatedAt
+}
+
+model Agent {
+  createdAt     DateTime   @default(now())
+  email         String?
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  licenseNumber String?
+  name          String?
+  phone         String?
+  properties    Property[] @relation(name: "AgentOnProperties")
+  property      Property?  @relation(name: "AgentsOnProperty", fields: [propertyId], references: [id])
+  propertyId    String?    @db.ObjectId
+  updatedAt     DateTime   @updatedAt
+}
+
+model Appointment {
+  client    Client?   @relation(name: "AppointmentsOnClient", fields: [clientId], references: [id])
+  clientId  String?   @db.ObjectId
+  clients   Client[]  @relation(name: "AppointmentOnClients")
+  createdAt DateTime  @default(now())
+  date      DateTime?
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  notes     String?
+  time      DateTime?
+  updatedAt DateTime  @updatedAt
+}
+
+model Client {
+  appointment   Appointment?  @relation(name: "AppointmentOnClients", fields: [appointmentId], references: [id])
+  appointmentId String?       @db.ObjectId
+  appointments  Appointment[] @relation(name: "AppointmentsOnClient")
+  createdAt     DateTime      @default(now())
+  email         String?
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  notes         String?
+  phone         String?
+  updatedAt     DateTime      @updatedAt
+}
+
+model User {
+  createdAt DateTime @default(now())
+  email     String?  @unique
+  firstName String?
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  lastName  String?
+  password  String
+  roles     Json
+  updatedAt DateTime @updatedAt
+  username  String   @unique
+}
